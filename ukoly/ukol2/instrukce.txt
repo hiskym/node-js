@@ -1,0 +1,4 @@
+{
+    "source": "zdroj.txt",
+    "target": "cil.txt"
+}
