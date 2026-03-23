@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a href="/">zpět na hlavní stránku</a>
+    <h1><%= todo.title %></h1>
+    <p>Stav: <strong><%= todo.done ? 'dokončené' : 'nedokončené' %></strong></p>
+    <ul>
+            <li>
+                <%= todo.title %>
+                    <% if (todo.done) { %>
+                <a href="/toggle/<%= todo.id %>">🚫 označit jako nedokončené </a>
+                
+                <% } else { %>
+                <a href="/toggle/<%= todo.id %>">✅ označit jako dokončené</a>
+                <% } %>
+
+                <a href="/remove/<%= todo.id %>">🚮 odstranit todočko</a>
+            </li>
+    </ul>
+
+    <form action="/rename/<%= todo.id %>" method="POST">
+        <input type="text" name="title" placeholder="nový název">
+        <button type="submit">změnit</button>
+    </form>
+</body>
+</html>

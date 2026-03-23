@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>helloo, your todos:</h1>
+    <ul>
+        <% for (const todo of todos) { %>
+            <li>
+                <a href="/todo/<%= todo.id %>"><%= todo.title %></a>
+                    <% if (todo.done) { %>
+                <a href="/toggle/<%= todo.id %>">🚫</a>
+                <a href="/remove/<%= todo.id %>">🚮</a>
+                <% } else { %>
+                <a href="/toggle/<%= todo.id %>">✅</a>
+                <% } %>
+            </li>
+        <% }; %>
+    </ul>
+
+    <form action="/add" method="POST">
+        <input type="text" name="title" placeholder="todo title">
+        <button type="submit">add todo</button>
+    </form>
+</body>
+</html>
