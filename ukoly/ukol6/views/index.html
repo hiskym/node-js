@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos</title>
+    <link rel="stylesheet" href="/styles/index.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Tvoje todočka</h1>
+
+            <form action="/add" method="POST" class="form add-form">
+                <input type="text" name="title" placeholder="Nové todočko..." required>
+                <button type="submit" class="btn">Přidat</button>
+            </form>
+        </div>
+
+        <div class="todo-list">
+            <% for (const todo of todos) { %>
+                <div class="todo-item">
+                    
+                    <div class="todo-main">
+                        <a href="/todo/<%= todo.id %>" class="todo-title <%= todo.done ? 'done' : '' %>">
+                            <%= todo.title %>
+                        </a>
+
+                        <span class="priority-badge priority-<%= todo.priority %>">
+                            <%= 
+                                todo.priority === 'low' ? 'nízká' :
+                                todo.priority === 'medium' ? 'střední' :
+                                todo.priority === 'high' ? 'vysoká' :
+                                todo.priority
+                            %>
+                        </span>
+                    </div>
+
+                    <div class="actions">
+                        <% if (todo.done) { %>
+                            <a href="/toggle/<%= todo.id %>" class="action-link">
+                                🚫
+                            </a>
+                            <a href="/remove/<%= todo.id %>" class="action-link danger-link">
+                                🗑️
+                            </a>
+                        <% } else { %>
+                            <a href="/toggle/<%= todo.id %>" class="action-link">
+                                ✅
+                            </a>
+                        <% } %>
+                    </div>
+
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>
