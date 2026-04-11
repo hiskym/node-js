@@ -1,0 +1,68 @@
+<div class="detail-header">
+    <div>
+        <h1>
+            <%= todo.title %>
+        </h1>
+        <p class="todo-status">
+            Stav:
+            <strong class="<%= todo.done ? 'status-done' : 'status-pending' %>">
+                <%= todo.done ? 'dokončené' : 'nedokončené' %>
+            </strong>
+        </p>
+    </div>
+
+    <span class="priority-badge priority-<%= todo.priority %>">
+        <%= todo.priority==='low' ? 'nízká' : todo.priority==='medium' ? 'střední' : todo.priority==='high' ? 'vysoká' :
+            todo.priority %>
+    </span>
+</div>
+
+<div class="detail-card">
+    <div class="detail-row">
+        <span class="detail-label">Název</span>
+        <span class="<%= todo.done ? 'done' : '' %>">
+            <%= todo.title %>
+        </span>
+    </div>
+
+    <div class="detail-row">
+        <span class="detail-label">Akce</span>
+        <div class="actions">
+            <% if (todo.done) { %>
+                <a href="/toggle/<%= todo.id %>" class="action-link">
+                    🚫 Označit jako nedokončené
+                </a>
+                <% } else { %>
+                    <a href="/toggle/<%= todo.id %>" class="action-link">
+                        ✅ Označit jako dokončené
+                    </a>
+                    <% } %>
+
+                        <a href="/remove/<%= todo.id %>" class="action-link danger-link">
+                            🗑️ Odstranit todočko
+                        </a>
+        </div>
+    </div>
+</div>
+
+<div class="form-grid">
+    <div class="edit-card">
+        <h2>Upravit název</h2>
+        <form action="/rename/<%= todo.id %>" method="POST" class="form form-vertical">
+            <input type="text" name="title" placeholder="Nový název" value="<%= todo.title %>" required>
+            <button type="submit" class="btn">Změnit název</button>
+        </form>
+    </div>
+
+    <div class="edit-card">
+        <h2>Upravit prioritu</h2>
+        <form action="/switch-priority/<%= todo.id %>" method="POST" class="form form-vertical">
+            <select name="priority" required class="select-input">
+                <option value="low" <%=todo.priority==='low' ? 'selected' : '' %>>Nízká</option>
+                <option value="medium" <%=todo.priority==='medium' ? 'selected' : '' %>>Střední</option>
+                <option value="high" <%=todo.priority==='high' ? 'selected' : '' %>>Vysoká</option>
+            </select>
+            <button type="submit" class="btn">Upravit prioritu</button>
+        </form>
+    </div>
+</div>

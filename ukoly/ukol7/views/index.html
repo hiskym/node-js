@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos</title>
+    <link rel="stylesheet" href="/styles/index.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Tvoje todočka</h1>
+
+            <form action="/add" method="POST" class="form add-form">
+                <input type="text" name="title" placeholder="Nové todočko..." required>
+                <button type="submit" class="btn">Přidat</button>
+            </form>
+        </div>
+        <div id="todos"><%- include('_todos.html') %></div>
+    </div>
+
+    <script>
+      const ws = new WebSocket('ws://localhost:3000/ws')
+
+      ws.addEventListener('open', () => {
+        console.log('WS open')
+        ws.send('Hello, World!')
+      })
+
+      ws.addEventListener('message', (ev) => {
+        const json = JSON.parse(ev.data)
+        if (json.type === 'todos') {
+          document.getElementById('todos').innerHTML = json.html
+        }
+      })
+    </script>
+</body>
+</html>

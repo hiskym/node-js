@@ -5,6 +5,8 @@ import { drizzle } from "drizzle-orm/libsql"
 import { eq } from "drizzle-orm";
 import { todosTable } from "./src/schema.js";
 import { serveStatic } from "@hono/node-server/serve-static";
+import { createNodeWebSocket } from '@hono/node-ws'
+import { WSContext } from 'hono/ws'
 
 const db = drizzle({
   connection: "file:db.sqlite",
@@ -13,19 +15,7 @@ const db = drizzle({
 
 const app = new Hono();
 
-// let todos = [
-//     {
-//     id: 1,
-//     title: "pivko",
-//     done: false
-//     },
-//     {
-//     id: 2,
-//     title: "jit na cviko",
-//     done: true
-//     },
-// ]
-
+const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
 
 app.use('/styles/*', serveStatic({ root: './public' }))
 
@@ -33,6 +23,28 @@ app.get(async (c, next) => {
     console.log(c.req.method, c.req.url);
     await next();
 })
+
+/**
+ * @type {Set<WSContext<WebSocket>>}
+ */
+let webSockets = new Set()
+
+app.get(
+  '/ws',
+  upgradeWebSocket((c) => ({
+    onOpen: (evt, ws) => {
+      webSockets.add(ws)
+      console.log('open web sockets:', webSockets.size)
+    },
+    onMessage: () => {
+      console.log('message')
+    },
+    onClose: (evt, ws) => {
+      console.log('close')
+      webSockets.delete(ws)
+    },
+  })),
+)
 
 app.get('/', async (c) => {
     const todos = await db.select().from(todosTable).all();
@@ -50,6 +62,8 @@ app.post('/add', async (c) => {
         done: 0
     })
 
+    sendTodosToAllWebsockets();
+
     return c.redirect("/");
 })
 
@@ -57,6 +71,13 @@ app.get('/remove/:id', async c => {
     const id = Number(c.req.param('id'));
 
     await db.delete(todosTable).where(eq(todosTable.id, id))
+
+    console.log('id1'+ id)
+
+    sendTodosToAllWebsockets();
+    sendTodoDetailToAllWebsockets(id, true);
+
+    console.log('id2'+ id)
 
     return c.redirect("/");
 })
@@ -71,6 +92,9 @@ app.get('/toggle/:id', async c => {
     await db.update(todosTable).set({ done: !todo.done }).where(eq(todosTable.id, id))
 
     const referer = c.req.header('referer')
+
+    sendTodosToAllWebsockets();
+    sendTodoDetailToAllWebsockets(id);
 
     if (referer) return c.redirect(referer)
 
@@ -88,6 +112,65 @@ app.get('/todo/:id', async c => {
 
     return c.html(html);
 })
+
+const sendTodosToAllWebsockets = async () => {
+  try {
+    const todos = await db.select().from(todosTable).all()
+
+    const html = await ejs.renderFile('views/_todos.html', {
+      todos
+    })
+
+    for (const webSocket of webSockets) {
+      webSocket.send(
+        JSON.stringify({
+          type: 'todos',
+          html,
+        }),
+      )
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const sendTodoDetailToAllWebsockets = async (id, removed = false) => {
+  try {
+    if (removed) {
+      for (const webSocket of webSockets) {
+        webSocket.send(
+          JSON.stringify({
+            type: 'removed-todo',
+            todoId: id,
+          }),
+        );
+      }
+      
+      return;
+    }
+
+    const todo = await db.select().from(todosTable).where(eq(todosTable.id, id)).get();
+
+    if (!todo) return;
+
+    const html = await ejs.renderFile('./views/_todo-detail.html', {
+      todo
+    });
+
+    for (const webSocket of webSockets) {
+      webSocket.send(
+        JSON.stringify({
+          type: 'todo-detail',
+          todoId: id,
+          html,
+        }),
+      );
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 
 app.post('/rename/:id', async c => {
     const id = Number(c.req.param('id'));
@@ -112,6 +195,9 @@ app.post('/rename/:id', async c => {
 
     await db.update(todosTable).set({ title }).where(eq(todosTable.id, id))
 
+    sendTodosToAllWebsockets();
+    sendTodoDetailToAllWebsockets(id);
+
     return c.redirect(`/todo/${id}`);
 })
 
@@ -126,6 +212,9 @@ app.post('/switch-priority/:id', async c => {
     if (!todo) return c.notFound();
 
     await db.update(todosTable).set({ priority: priority }).where(eq(todosTable.id, id))
+
+    sendTodosToAllWebsockets();
+    sendTodoDetailToAllWebsockets(id);
 
     return c.redirect(`/todo/${id}`);
 })
@@ -144,7 +233,8 @@ app.get('/hello/:name', async c => {
     return c.html('hi ' + name);
 })
 
-serve({
-    fetch: app.fetch,
-    port: 8000
+const server = serve(app, (info) => {
+    console.log(`Server started on http://localhost:${info.port}`)
 })
+
+injectWebSocket(server)

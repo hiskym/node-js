@@ -1,0 +1,33 @@
+<div class="todo-list">
+    <% for (const todo of todos) { %>
+        <div class="todo-item">
+
+            <div class="todo-main">
+                <a href="/todo/<%= todo.id %>" class="todo-title <%= todo.done ? 'done' : '' %>">
+                    <%= todo.title %>
+                </a>
+
+                <span class="priority-badge priority-<%= todo.priority %>">
+                    <%= todo.priority==='low' ? 'nízká' : todo.priority==='medium' ? 'střední' : todo.priority==='high'
+                        ? 'vysoká' : todo.priority %>
+                </span>
+            </div>
+
+            <div class="actions">
+                <% if (todo.done) { %>
+                    <a href="/toggle/<%= todo.id %>" class="action-link">
+                        🚫
+                    </a>
+                    <a href="/remove/<%= todo.id %>" class="action-link danger-link">
+                        🗑️
+                    </a>
+                    <% } else { %>
+                        <a href="/toggle/<%= todo.id %>" class="action-link">
+                            ✅
+                        </a>
+                        <% } %>
+            </div>
+
+        </div>
+        <% } %>
+</div>
