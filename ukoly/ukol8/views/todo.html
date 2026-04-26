@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo detail</title>
+    <link rel="stylesheet" href="/styles/index.css">
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Zpět na hlavní stránku</a>
+
+        <div class="todo-detail" id="todo-detail">
+            <%- include('_todo-detail.html') %>
+        </div>
+    </div>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:3000/ws')
+
+        const currentTodoId = Number("<%= todo.id %>");
+
+        ws.addEventListener('open', () => {
+            console.log('WS open')
+            ws.send('Hello, World!')
+        })
+
+        ws.addEventListener('message', (ev) => {
+            const json = JSON.parse(ev.data)
+
+            if (json.type === 'removed-todo' && json.todoId === currentTodoId) {
+                alert('Toto todočko bylo odstraněno.')
+                window.location.href = '/'
+            }
+
+            if (json.type === 'todo-detail' && json.todoId === currentTodoId) {
+                document.getElementById('todo-detail').innerHTML = json.html
+            }
+        })
+    </script>
+</body>
+
+</html>
