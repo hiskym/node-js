@@ -1,0 +1,16 @@
+{
+  "name": "fitness-shop",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "db:generate": "pnpm --filter @fitness-shop/db db:generate",
+    "db:migrate": "pnpm --filter @fitness-shop/db db:migrate",
+    "db:seed": "pnpm --filter @fitness-shop/db db:seed"
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "latest"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
