@@ -2,17 +2,28 @@ import { eq } from "drizzle-orm";
 import {
   categories,
   db,
+  orderItems,
+  orders,
   productCategories,
   productImages,
   products,
   productVariants,
-  users
+  users,
 } from "./index";
 
 const now = () => new Date().toISOString();
 
 async function seed() {
   console.log("Seeding database...");
+
+  await db.delete(orderItems);
+  await db.delete(orders);
+  await db.delete(productVariants);
+  await db.delete(productImages);
+  await db.delete(productCategories);
+  await db.delete(products);
+  await db.delete(categories);
+  await db.delete(users);
 
   const existingAdmin = await db.query.users.findFirst({
     where: eq(users.email, "admin@example.com")
@@ -21,7 +32,7 @@ async function seed() {
   if (!existingAdmin) {
     await db.insert(users).values({
       email: "admin@example.com",
-      passwordHash: "$2b$10$replace-this-with-real-hash-later",
+      passwordHash: "$2b$10$3z8BTc2oMfarUm6TmKTtZ.t.nE8AhYmYposwGJlQPVlp4j26fx2Gi", // "admin123"
       name: "Admin",
       role: "admin",
       isRegistered: true,

@@ -1,0 +1,3 @@
+.env
+*.db
+./packages/db/src/seed.ts

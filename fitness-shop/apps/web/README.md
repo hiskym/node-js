@@ -1,0 +1,1 @@
+Public part of Fitness shop. For more info look at unified readme file in root.
