@@ -1,0 +1,1 @@
+API for Fitness Shop. For more info look at unified readme in root.

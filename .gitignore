@@ -2,3 +2,6 @@ cvika/*
 *.pdf
 *.docx
 node_modules
+dist
+build
+.next
