@@ -25,6 +25,12 @@ export const metadata: Metadata = {
   },
   description:
     "Jednoduchý e-shop s fitness pomůckami pro domácí i silový trénink.",
+  openGraph: {
+    title: "Fitness Shop",
+    description:
+      "Jednoduchý e-shop s fitness pomůckami.",
+    type: "website",
+},
 };
 
 export default function RootLayout({
