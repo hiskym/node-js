@@ -348,6 +348,31 @@ async adminUpdateImage(
   return updatedImage;
 }
 
+async adminDeleteImage(productId: number, imageId: number) {
+  if (!Number.isInteger(productId) || !Number.isInteger(imageId)) {
+    throw new BadRequestException('Invalid product or image id');
+  }
+
+  const existingImage = await this.database.query.productImages.findFirst({
+    where: and(
+      eq(productImages.id, imageId),
+      eq(productImages.productId, productId),
+    ),
+  });
+
+  if (!existingImage) {
+    throw new NotFoundException('Image not found');
+  }
+
+  await this.database
+    .delete(productImages)
+    .where(eq(productImages.id, imageId));
+
+  return {
+    success: true,
+  };
+}
+
 private validateCreateProductDto(dto: CreateProductDto) {
   if (!dto.name?.trim()) {
     throw new BadRequestException('Product name is required');

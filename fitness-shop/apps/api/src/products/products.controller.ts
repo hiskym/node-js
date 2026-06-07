@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards, Query, Delete } from '@nestjs/common';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -91,4 +91,17 @@ adminUpdateImage(
     dto,
   );
 }
+
+@UseGuards(AdminGuard)
+@Delete('admin/products/:productId/images/:imageId')
+adminDeleteImage(
+  @Param('productId') productId: string,
+  @Param('imageId') imageId: string,
+) {
+  return this.productsService.adminDeleteImage(
+    Number(productId),
+    Number(imageId),
+  );
+}
+
 }

@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createAdminProductImage,
   createAdminProductVariant,
+  deleteAdminProductImage,
   getAdminProduct,
   updateAdminProduct,
   updateAdminProductImage,
@@ -22,6 +23,7 @@ export default function AdminProductDetailPage() {
   const productId = Number(params.id);
   const queryClient = useQueryClient();
 
+
   const [newVariantName, setNewVariantName] = useState("");
   const [newVariantSku, setNewVariantSku] = useState("");
   const [newVariantPrice, setNewVariantPrice] = useState("");
@@ -30,6 +32,10 @@ export default function AdminProductDetailPage() {
   const [newImageUrl, setNewImageUrl] = useState("");
   const [newImageAlt, setNewImageAlt] = useState("");
   const [newImageSortOrder, setNewImageSortOrder] = useState(1);
+
+  const [editingVariantId, setEditingVariantId] = useState<number | null>(null);
+
+  const [editingImageId, setEditingImageId] = useState<number | null>(null);
 
   const productQuery = useQuery({
     queryKey: ["admin-product", productId],
@@ -87,6 +93,15 @@ export default function AdminProductDetailPage() {
     },
   });
 
+  const deleteImageMutation = useMutation({
+    mutationFn: deleteAdminProductImage,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-product", productId],
+      });
+    },
+  });
+
   if (productQuery.isLoading) {
     return <main style={{ padding: 32 }}>Načítám produkt...</main>;
   }
@@ -139,6 +154,7 @@ export default function AdminProductDetailPage() {
     });
   }
 
+
   return (
     <AdminProtected>
       <main>
@@ -189,38 +205,112 @@ export default function AdminProductDetailPage() {
           <div className="grid">
             {product.variants.map((variant) => (
               <div key={variant.id} className="card">
-                <strong>{variant.name}</strong>
-                <p className="muted">SKU: {variant.sku}</p>
-                <p>Sklad: {variant.stockQuantity}</p>
-                <p>{variant.isActive ? "Aktivní" : "Neaktivní"}</p>
+                {editingVariantId === variant.id ? (
+                  <form
+                    className="form-grid"
+                    onSubmit={(event) => {
+                      event.preventDefault();
 
-                <div className="actions">
-                  <button
-                    className="button secondary"
-                    onClick={() =>
-                      updateVariantMutation.mutate({
-                        productId,
-                        variantId: variant.id,
-                        isActive: !variant.isActive,
-                      })
-                    }
-                  >
-                    {variant.isActive ? "Deaktivovat" : "Aktivovat"}
-                  </button>
+                      const formData = new FormData(event.currentTarget);
 
-                  <button
-                    className="button secondary"
-                    onClick={() =>
-                      updateVariantMutation.mutate({
-                        productId,
-                        variantId: variant.id,
-                        stockQuantity: variant.stockQuantity + 1,
-                      })
-                    }
+                      updateVariantMutation.mutate(
+                        {
+                          productId,
+                          variantId: variant.id,
+                          name: String(formData.get("name")),
+                          sku: String(formData.get("sku")),
+                          price: String(formData.get("price")) || undefined,
+                          currency: String(formData.get("currency")) || undefined,
+                          stockQuantity: Number(formData.get("stockQuantity")),
+                          isActive: formData.get("isActive") === "on",
+                        },
+                        {
+                          onSuccess: () => {
+                            setEditingVariantId(null);
+                          },
+                        },
+                      );
+                    }}
                   >
-                    +1 sklad
-                  </button>
-                </div>
+                    <input className="input" name="name" defaultValue={variant.name} />
+                    <input className="input" name="sku" defaultValue={variant.sku} />
+                    <input className="input" name="price" defaultValue={variant.price ?? ""} />
+                    <input className="input" name="currency" defaultValue={variant.currency ?? "CZK"} />
+                    <input
+                      className="input"
+                      name="stockQuantity"
+                      type="number"
+                      min={0}
+                      defaultValue={variant.stockQuantity}
+                    />
+
+                    <label>
+                      <input
+                        name="isActive"
+                        type="checkbox"
+                        defaultChecked={variant.isActive}
+                      />{" "}
+                      Aktivní
+                    </label>
+
+                    {updateVariantMutation.isError && (
+                      <p style={{ color: "var(--danger)" }}>
+                        {updateVariantMutation.error instanceof Error
+                          ? updateVariantMutation.error.message
+                          : "Variantu se nepodařilo upravit."}
+                      </p>
+                    )}
+
+                    <div className="actions">
+                      <button className="button" type="submit">
+                        Uložit variantu
+                      </button>
+
+                      <button
+                        className="button secondary"
+                        type="button"
+                        onClick={() => setEditingVariantId(null)}
+                      >
+                        Zrušit
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <strong>{variant.name}</strong>
+                    <p className="muted">SKU: {variant.sku}</p>
+                    <p>
+                      Cena: {variant.price ?? product.price}{" "}
+                      {variant.currency ?? product.currency}
+                    </p>
+                    <p>Sklad: {variant.stockQuantity}</p>
+                    <p>{variant.isActive ? "Aktivní" : "Neaktivní"}</p>
+
+                    <div className="actions">
+                      <button
+                        className="button secondary"
+                        type="button"
+                        onClick={() => setEditingVariantId(variant.id)}
+                      >
+                        Upravit
+                      </button>
+
+                      <button
+                        className="button secondary"
+                        type="button"
+                        onClick={() =>
+                          updateVariantMutation.mutate({
+                            productId,
+                            variantId: variant.id,
+                            stockQuantity: variant.stockQuantity + 1,
+                          })
+                        }
+                      >
+                        +1 sklad
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -257,8 +347,20 @@ export default function AdminProductDetailPage() {
               onChange={(e) => setNewVariantStock(Number(e.target.value))}
             />
 
-            <button className="button" disabled={createVariantMutation.isPending}>
-              Přidat variantu
+            {createVariantMutation.isError && (
+              <p style={{ color: "var(--danger)" }}>
+                {createVariantMutation.error instanceof Error
+                  ? createVariantMutation.error.message
+                  : "Variantu se nepodařilo vytvořit."}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="button"
+              disabled={createVariantMutation.isPending}
+            >
+              {createVariantMutation.isPending ? "Ukládám..." : "Přidat variantu"}
             </button>
           </form>
         </section>
@@ -289,26 +391,117 @@ export default function AdminProductDetailPage() {
                   }}
                 />
 
-                <div>
-                  <strong>{image.imageUrl}</strong>
-                  <p className="muted">{image.altText}</p>
-                  <p>Pořadí: {image.sortOrder}</p>
+                {editingImageId === image.id ? (
+                  <form
+                    className="form-grid"
+                    onSubmit={(event) => {
+                      event.preventDefault();
 
-                  <button
-                    className="button secondary"
-                    onClick={() =>
-                      updateImageMutation.mutate({
-                        productId,
-                        imageId: image.id,
-                        sortOrder: image.sortOrder + 1,
-                      })
-                    }
+                      const formData = new FormData(event.currentTarget);
+
+                      updateImageMutation.mutate(
+                        {
+                          productId,
+                          imageId: image.id,
+                          imageUrl: String(formData.get("imageUrl")),
+                          altText: String(formData.get("altText")),
+                          sortOrder: Number(formData.get("sortOrder")),
+                        },
+                        {
+                          onSuccess: () => setEditingImageId(null),
+                        },
+                      );
+                    }}
                   >
-                    Posunout níž
-                  </button>
-                </div>
+                    <input
+                      className="input"
+                      name="imageUrl"
+                      defaultValue={image.imageUrl}
+                    />
+
+                    <input
+                      className="input"
+                      name="altText"
+                      defaultValue={image.altText ?? ""}
+                      placeholder="Alt popis"
+                    />
+
+                    <input
+                      className="input"
+                      name="sortOrder"
+                      type="number"
+                      min={1}
+                      defaultValue={image.sortOrder}
+                    />
+
+                    <div className="actions">
+                      <button className="button" type="submit">
+                        Uložit obrázek
+                      </button>
+
+                      <button
+                        className="button secondary"
+                        type="button"
+                        onClick={() => setEditingImageId(null)}
+                      >
+                        Zrušit
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div>
+                    <strong>{image.imageUrl}</strong>
+                    <p className="muted">{image.altText || "Bez alt popisu"}</p>
+                    <p>Pořadí: {image.sortOrder}</p>
+
+                    <div className="actions">
+                      <button
+                        className="button secondary"
+                        type="button"
+                        onClick={() => setEditingImageId(image.id)}
+                      >
+                        Upravit
+                      </button>
+
+                      <button
+                        className="button secondary"
+                        type="button"
+                        onClick={() =>
+                          updateImageMutation.mutate({
+                            productId,
+                            imageId: image.id,
+                            sortOrder: image.sortOrder + 1,
+                          })
+                        }
+                      >
+                        Posunout níž
+                      </button>
+
+                      <button
+                        className="button danger"
+                        type="button"
+                        onClick={() => {
+                          const confirmed = window.confirm("Opravdu chceš obrázek odebrat?");
+                          if (!confirmed) return;
+
+                          deleteImageMutation.mutate({
+                            productId,
+                            imageId: image.id,
+                          });
+                        }}
+                      >
+                        Odebrat
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
+            {deleteImageMutation.isError && (
+              <p style={{ color: "var(--danger)" }}>
+                Obrázek se nepodařilo odebrat.
+              </p>
+            )}
           </div>
 
           <h3>Nový obrázek</h3>

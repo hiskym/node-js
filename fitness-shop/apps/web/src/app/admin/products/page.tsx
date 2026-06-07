@@ -12,6 +12,7 @@ import { getAdminCategories } from "@/lib/admin-categories";
 import { AdminProtected } from "@/components/admin/admin-protected";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { getImageUrl } from "@/lib/image-url";
+import { uploadProductImage } from "@/lib/admin-uploads";
 
 export default function AdminProductsPage() {
     const queryClient = useQueryClient();
@@ -61,6 +62,13 @@ export default function AdminProductsPage() {
         mutationFn: updateAdminProduct,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+        },
+    });
+
+    const uploadImageMutation = useMutation({
+        mutationFn: uploadProductImage,
+        onSuccess: (data) => {
+            setImageUrl(data.imageUrl);
         },
     });
 
@@ -151,13 +159,51 @@ export default function AdminProductsPage() {
                             required
                         />
 
-                        <input
-                            className="input"
-                            placeholder="/products/example.jpg"
-                            value={imageUrl}
-                            onChange={(event) => setImageUrl(event.target.value)}
-                            required
-                        />
+                        <div className="form-grid">
+                            <input
+                                className="input"
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                onChange={(event) => {
+                                    const file = event.target.files?.[0];
+
+                                    if (file) {
+                                        uploadImageMutation.mutate(file);
+                                    }
+                                }}
+                            />
+
+                            {uploadImageMutation.isPending && (
+                                <p className="muted">Nahrávám obrázek...</p>
+                            )}
+
+                            {uploadImageMutation.isError && (
+                                <p style={{ color: "var(--danger)" }}>
+                                    Obrázek se nepodařilo nahrát.
+                                </p>
+                            )}
+
+                            <input
+                                className="input"
+                                placeholder="/uploads/products/example.jpg"
+                                value={imageUrl}
+                                onChange={(event) => setImageUrl(event.target.value)}
+                                required
+                            />
+
+                            {imageUrl && (
+                                <img
+                                    src={getImageUrl(imageUrl)}
+                                    alt="Náhled produktu"
+                                    style={{
+                                        width: 120,
+                                        height: 120,
+                                        objectFit: "cover",
+                                        borderRadius: 10,
+                                    }}
+                                />
+                            )}
+                        </div>
 
                         <div>
                             <h3>Kategorie</h3>

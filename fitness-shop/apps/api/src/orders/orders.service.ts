@@ -16,6 +16,7 @@ import { asc, and, desc, eq } from 'drizzle-orm';
 import { orderStatusEnum } from '@fitness-shop/db';
 import { DATABASE } from '../database/database.module';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { MailService } from '../mail/mail.service';
 
 type Database = typeof db;
 
@@ -32,7 +33,10 @@ type ValidatedOrderItem = {
 
 @Injectable()
 export class OrdersService {
-    constructor(@Inject(DATABASE) private readonly database: Database) { }
+    constructor(
+        @Inject(DATABASE) private readonly database: Database,
+        private readonly mailService: MailService
+    ) { }
 
     async create(dto: CreateOrderDto) {
         this.validateCreateOrderDto(dto);
@@ -105,6 +109,28 @@ export class OrdersService {
                     updatedAt: now,
                 })
                 .where(eq(productVariants.id, item.variantId));
+        }
+
+        try {
+            await this.mailService.sendOrderConfirmation({
+                to: createdOrder.customerEmail,
+                customerName: createdOrder.customerName,
+                orderNumber: createdOrder.orderNumber,
+                total: createdOrder.total,
+                currency: createdOrder.currency,
+                items: validatedItems,
+            });
+
+            await this.mailService.sendAdminOrderNotification({
+                to: createdOrder.customerEmail,
+                customerName: createdOrder.customerName,
+                orderNumber: createdOrder.orderNumber,
+                total: createdOrder.total,
+                currency: createdOrder.currency,
+                items: validatedItems,
+            });
+        } catch (error) {
+            console.error('Order email failed:', error);
         }
 
         return {

@@ -115,3 +115,15 @@ export function updateAdminProductImage(input: {
     body: JSON.stringify(body),
   });
 }
+
+export function deleteAdminProductImage(input: {
+  productId: number;
+  imageId: number;
+}) {
+  return apiFetch<{ success: boolean }>(
+    `/admin/products/${input.productId}/images/${input.imageId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}

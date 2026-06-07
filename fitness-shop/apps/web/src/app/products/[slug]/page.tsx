@@ -123,21 +123,6 @@ export default async function ProductDetailPage({ params }: Props) {
             <h1>{product.name}</h1>
             <p>{product.description}</p>
 
-            <h2>
-              {product.price} {product.currency}
-            </h2>
-
-            <div style={{ marginTop: 24 }}>
-              <h3>Dostupné varianty</h3>
-              <ul>
-                {product.variants.map((variant) => (
-                  <li key={variant.id}>
-                    {variant.name} — skladem {variant.stockQuantity} ks
-                  </li>
-                ))}
-              </ul>
-            </div>
-
             <AddToCart product={product} />
           </section>
         </div>

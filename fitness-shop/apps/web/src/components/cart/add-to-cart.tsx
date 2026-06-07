@@ -10,6 +10,8 @@ export function AddToCart({ product }: { product: Product }) {
   const [variantId, setVariantId] = useState(product.variants[0]?.id);
   const [quantity, setQuantity] = useState(1);
 
+
+
   const selectedVariant = product.variants.find(
     (variant) => variant.id === variantId,
   );
@@ -20,8 +22,15 @@ export function AddToCart({ product }: { product: Product }) {
 
   const isOutOfStock = selectedVariant.stockQuantity <= 0;
 
+  const displayPrice = selectedVariant.price ?? product.price;
+  const displayCurrency = selectedVariant.currency ?? product.currency;
+
   return (
     <div style={{ marginTop: 24 }}>
+      <h2>
+        {displayPrice} {displayCurrency}
+      </h2>
+
       <label>
         Varianta{" "}
         <select
