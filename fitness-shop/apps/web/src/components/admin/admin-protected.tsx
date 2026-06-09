@@ -21,7 +21,13 @@ export function AdminProtected({ children }: { children: ReactNode }) {
   }, [meQuery.isError, meQuery.data, router]);
 
   if (meQuery.isLoading) {
-    return <main style={{ padding: 32 }}>Ověřuji přihlášení...</main>;
+    return (
+      <main className="mx-auto max-w-6xl px-6 py-10">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <p className="text-sm text-zinc-600">Ověřuji přihlášení...</p>
+        </div>
+      </main>
+    );
   }
 
   if (meQuery.isError || meQuery.data?.role !== "admin") {

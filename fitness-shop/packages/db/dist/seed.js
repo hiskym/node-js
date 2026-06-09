@@ -5,6 +5,14 @@ const index_1 = require("./index");
 const now = () => new Date().toISOString();
 async function seed() {
     console.log("Seeding database...");
+    await index_1.db.delete(index_1.orderItems);
+    await index_1.db.delete(index_1.orders);
+    await index_1.db.delete(index_1.productVariants);
+    await index_1.db.delete(index_1.productImages);
+    await index_1.db.delete(index_1.productCategories);
+    await index_1.db.delete(index_1.products);
+    await index_1.db.delete(index_1.categories);
+    await index_1.db.delete(index_1.users);
     const existingAdmin = await index_1.db.query.users.findFirst({
         where: (0, drizzle_orm_1.eq)(index_1.users.email, "admin@example.com")
     });

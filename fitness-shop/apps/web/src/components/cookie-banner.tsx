@@ -24,7 +24,7 @@ export function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="cookie-banner">
+    <div className="fixed bottom-6 left-6 right-6 z-50 mx-auto max-w-5xl rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl">
       <div>
         <strong>Používáme pouze nezbytné ukládání dat</strong>
         <p>
@@ -34,7 +34,7 @@ export function CookieBanner() {
         <Link href="/privacy-policy">Více informací</Link>
       </div>
 
-      <button className="button" onClick={accept}>
+      <button className="rounded-xl bg-zinc-900 px-4 py-2 text-white" onClick={accept}>
         Rozumím
       </button>
     </div>

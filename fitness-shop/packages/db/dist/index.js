@@ -43,7 +43,7 @@ exports.db = void 0;
 const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
 const better_sqlite3_2 = require("drizzle-orm/better-sqlite3");
 const schema = __importStar(require("./schema"));
-const dbUrl = process.env.DATABASE_URL ?? "./packages/db/sqlite.db";
+const dbUrl = process.env.DATABASE_URL ?? "./sqlite.db";
 const sqlite = new better_sqlite3_1.default(dbUrl);
 exports.db = (0, better_sqlite3_2.drizzle)(sqlite, {
     schema,

@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export function SearchForm() {
   const router = useRouter();
@@ -21,17 +23,14 @@ export function SearchForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="search-form">
-      <input
-        className="input"
+    <form onSubmit={handleSubmit} className="flex w-full gap-2">
+      <Input
         placeholder="Hledat produkty..."
         value={query}
         onChange={(event) => setQuery(event.target.value)}
       />
 
-      <button className="button" type="submit">
-        Hledat
-      </button>
+      <Button type="submit">Hledat</Button>
     </form>
   );
 }

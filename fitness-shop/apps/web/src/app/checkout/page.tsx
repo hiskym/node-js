@@ -58,39 +58,45 @@ export default function CheckoutPage() {
     }
   }
 
-  return(
-    <main>
-      <Link href="/cart" className="muted">
+  return (
+    <main className="mx-auto max-w-6xl px-6 py-10">
+      <Link href="/cart" className="text-sm text-zinc-600 hover:text-zinc-950">
         ← Zpět do košíku
       </Link>
 
-      <div className="page-header">
-        <div>
-          <h1>Dokončení objednávky</h1>
-          <p className="muted">
-            Vyplň kontaktní údaje a zkontroluj souhrn objednávky.
-          </p>
-        </div>
+      <div className="mb-8 mt-4">
+        <h1 className="text-3xl font-bold tracking-tight">
+          Dokončení objednávky
+        </h1>
+        <p className="mt-1 text-zinc-600">
+          Vyplň kontaktní údaje a zkontroluj souhrn objednávky.
+        </p>
       </div>
 
       {items.length === 0 ? (
-        <section className="card">
-          <h2>Košík je prázdný</h2>
-          <p className="muted">Nejdřív si přidej produkt do košíku.</p>
-          <Link href="/" className="button">
+        <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold">Košík je prázdný</h2>
+          <p className="mt-2 text-zinc-600">
+            Nejdřív si přidej produkt do košíku.
+          </p>
+
+          <Link
+            href="/"
+            className="mt-5 inline-flex rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+          >
             Zpět na produkty
           </Link>
         </section>
       ) : (
         <form onSubmit={handleSubmit}>
-          <div className="checkout-layout">
-            <div className="checkout-left">
-              <section className="card">
-                <h2>Kontaktní údaje</h2>
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+            <div className="grid gap-6">
+              <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-semibold">Kontaktní údaje</h2>
 
-                <div className="form-grid">
+                <div className="mt-5 grid gap-3">
                   <input
-                    className="input"
+                    className="rounded-xl border border-zinc-200 px-3 py-2 text-sm"
                     placeholder="Jméno a příjmení"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
@@ -98,7 +104,7 @@ export default function CheckoutPage() {
                   />
 
                   <input
-                    className="input"
+                    className="rounded-xl border border-zinc-200 px-3 py-2 text-sm"
                     type="email"
                     placeholder="E-mail"
                     value={email}
@@ -107,7 +113,7 @@ export default function CheckoutPage() {
                   />
 
                   <input
-                    className="input"
+                    className="rounded-xl border border-zinc-200 px-3 py-2 text-sm"
                     placeholder="Telefon"
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
@@ -116,24 +122,26 @@ export default function CheckoutPage() {
                 </div>
               </section>
 
-              <section className="card">
-                <h2>Doprava</h2>
-                <label>
-                  <input type="radio" checked readOnly /> Osobní odběr
+              <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-semibold">Doprava</h2>
+                <label className="mt-4 flex items-center gap-2 text-sm">
+                  <input type="radio" checked readOnly />
+                  Osobní odběr
                 </label>
               </section>
 
-              <section className="card">
-                <h2>Platba</h2>
-                <label>
-                  <input type="radio" checked readOnly /> Platba při převzetí
+              <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-semibold">Platba</h2>
+                <label className="mt-4 flex items-center gap-2 text-sm">
+                  <input type="radio" checked readOnly />
+                  Platba při převzetí
                 </label>
               </section>
 
-              <section className="card">
-                <h2>Poznámka</h2>
+              <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-semibold">Poznámka</h2>
                 <textarea
-                  className="textarea"
+                  className="mt-4 min-h-32 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm"
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
                   placeholder="Volitelná poznámka k objednávce"
@@ -141,34 +149,34 @@ export default function CheckoutPage() {
               </section>
             </div>
 
-            <aside className="checkout-summary">
-              <section className="card">
-                <h2>Souhrn objednávky</h2>
+            <aside className="h-fit lg:sticky lg:top-28">
+              <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-semibold">Souhrn objednávky</h2>
 
-                <div className="checkout-items">
+                <div className="mt-5 grid gap-4">
                   {items.map((item) => (
-                    <div key={item.variantId} className="checkout-item">
-                      {item.imageUrl && (
+                    <div
+                      key={item.variantId}
+                      className="grid grid-cols-[60px_1fr_auto] gap-3"
+                    >
+                      {item.imageUrl ? (
                         <img
                           src={getImageUrl(item.imageUrl)}
                           alt={item.productName}
-                          width={60}
-                          height={60}
-                          style={{
-                            objectFit: "cover",
-                            borderRadius: 8,
-                          }}
+                          className="h-15 w-15 rounded-lg object-cover"
                         />
+                      ) : (
+                        <div />
                       )}
 
                       <div>
-                        <strong>{item.productName}</strong>
-                        <div className="muted">
+                        <strong className="text-sm">{item.productName}</strong>
+                        <div className="text-xs text-zinc-600">
                           {item.variantName} × {item.quantity}
                         </div>
                       </div>
 
-                      <div>
+                      <div className="text-sm font-medium">
                         {(Number(item.unitPrice) * item.quantity).toFixed(2)}{" "}
                         {item.currency}
                       </div>
@@ -176,25 +184,25 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
-                <div className="checkout-total">
-                  <div className="summary-row">
+                <div className="mt-5 space-y-2 border-t border-zinc-200 pt-5 text-sm">
+                  <div className="flex justify-between">
                     <span>Produkty</span>
                     <span>
                       {totalPrice} {currency}
                     </span>
                   </div>
 
-                  <div className="summary-row">
+                  <div className="flex justify-between">
                     <span>Doprava</span>
                     <span>Zdarma</span>
                   </div>
 
-                  <div className="summary-row">
+                  <div className="flex justify-between">
                     <span>Platba</span>
                     <span>Zdarma</span>
                   </div>
 
-                  <div className="summary-row summary-total">
+                  <div className="flex justify-between border-t border-zinc-200 pt-3 text-base font-bold">
                     <span>Celkem</span>
                     <span>
                       {totalPrice} {currency}
@@ -202,23 +210,22 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <label className="checkbox-row" style={{ marginTop: 16 }}>
-                  <input type="checkbox" required />
+                <label className="mt-5 flex items-start gap-2 text-sm">
+                  <input type="checkbox" required className="mt-1" />
                   <span>
                     Souhlasím se{" "}
-                    <Link href="/privacy-policy" target="_blank">
+                    <Link href="/privacy-policy" target="_blank" className="underline">
                       zpracováním osobních údajů
                     </Link>
                   </span>
                 </label>
 
-                {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
+                {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
 
                 <button
                   type="submit"
-                  className="button"
+                  className="mt-5 w-full rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={isSubmitting}
-                  style={{ width: "100%", marginTop: 16 }}
                 >
                   {isSubmitting ? "Odesílám..." : "Dokončit objednávku"}
                 </button>

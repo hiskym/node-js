@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description:
       "Jednoduchý e-shop s fitness pomůckami.",
     type: "website",
-},
+  },
 };
 
 export default function RootLayout({
@@ -39,11 +39,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="cs" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body>
+      <body className="min-h-screen bg-zinc-100 text-zinc-950">
         <AppQueryProvider>
           <CartProvider>
             <SiteNavbar />
-
             {children}
             <CookieBanner />
           </CartProvider>

@@ -80,53 +80,56 @@ export default async function ProductDetailPage({ params }: Props) {
   };
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+  <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
 
-      <main>
-        <Link href="/" className="muted">
-          ← Zpět na produkty
-        </Link>
+    <main className="mx-auto max-w-6xl px-6 py-10">
+      <Link href="/" className="text-sm text-zinc-600 hover:text-zinc-950">
+        ← Zpět na produkty
+      </Link>
 
-        <div className="product-detail">
-          <section className="card">
-            {mainImage && (
-              <img
-                src={getImageUrl(mainImage.imageUrl)}
-                alt={mainImage.altText ?? product.name}
-                className="product-detail-main-image"
-              />
-            )}
+      <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+          {mainImage && (
+            <img
+              src={getImageUrl(mainImage.imageUrl)}
+              alt={mainImage.altText ?? product.name}
+              className="max-h-[520px] w-full rounded-xl object-cover"
+            />
+          )}
 
-            {product.images.length > 1 && (
-              <div className="product-detail-thumbnails">
-                {product.images.slice(1).map((image) => (
-                  <img
-                    key={image.id}
-                    src={getImageUrl(image.imageUrl)}
-                    alt={image.altText ?? product.name}
-                    className="product-detail-thumbnail"
-                  />
-                ))}
-              </div>
-            )}
-          </section>
+          {product.images.length > 1 && (
+            <div className="mt-4 flex flex-wrap gap-3">
+              {product.images.slice(1).map((image) => (
+                <img
+                  key={image.id}
+                  src={getImageUrl(image.imageUrl)}
+                  alt={image.altText ?? product.name}
+                  className="h-24 w-24 rounded-xl object-cover"
+                />
+              ))}
+            </div>
+          )}
+        </section>
 
-          <section className="card">
-            <p className="muted">
-              {product.categories.map((category) => category.name).join(", ")}
-            </p>
+        <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-zinc-500">
+            {product.categories.map((category) => category.name).join(", ")}
+          </p>
 
-            <h1>{product.name}</h1>
-            <p>{product.description}</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight">
+            {product.name}
+          </h1>
 
-            <AddToCart product={product} />
-          </section>
-        </div>
-      </main>
-    </>
-  );
+          <p className="mt-4 leading-7 text-zinc-700">{product.description}</p>
+
+          <AddToCart product={product} />
+        </section>
+      </div>
+    </main>
+  </>
+);
 }
